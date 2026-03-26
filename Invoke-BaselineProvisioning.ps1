@@ -3,10 +3,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [string]$LocalAdminUser,
-
-    [Parameter(Mandatory = $true)]
-    [SecureString]$LocalAdminPassword,
+    [SecureString]$CurrentAdminPassword,
 
     [Parameter(Mandatory = $true)]
     [string]$StandardUser,
@@ -35,8 +32,8 @@ Import-Module "$PSScriptRoot\Modules\ScriptHandling.psm1" -Force
 Initialize-Logging -Path $config['General']['LogPath']
 Assert-Administrator
 
-Invoke-Step -Name 'Users and privileges'    -Action { Set-BaselineUsers -Config $config -LocalAdminUser $LocalAdminUser -LocalAdminPassword $LocalAdminPassword -StandardUser $StandardUser -StandardUserPassword $StandardUserPassword }
 Invoke-Step -Name 'Password policy'         -Action { Set-BaselinePasswordPolicy -Config $config }
+Invoke-Step -Name 'Users and privileges'    -Action { Set-BaselineUsers -Config $config -CurrentAdminPassword $CurrentAdminPassword -StandardUser $StandardUser -StandardUserPassword $StandardUserPassword }
 Invoke-Step -Name 'UAC'                     -Action { Set-BaselineUAC -Config $config }
 Invoke-Step -Name 'BitLocker'               -Action { Set-BaselineBitLocker -Config $config }
 Invoke-Step -Name 'Microsoft Defender'      -Action { Set-BaselineDefender -Config $config }

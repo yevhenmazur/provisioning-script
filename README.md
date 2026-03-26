@@ -6,11 +6,12 @@ Please see below for a full list of changes being made to the system.
 
 ## Structure
 
-- `Invoke-BaselineProvisioning.ps1` - main provisioning script without SRP rollout
-- `Invoke-SRPRollout.ps1` - separate rollout for Software Restriction Policies
-- `config.ini` - editable configuration
-- `Modules/` - PowerShell modules grouped by responsibility
-- `run_me.ps1` - edit and run with one command
+- `Start-Provisioning.cmd` - the only entry point; run as Administrator to start provisioning with no manual commands
+- `Start-Provisioning.ps1` - interactive orchestrator; collects input, reads config, and runs provisioning steps
+- `Invoke-BaselineProvisioning.ps1` - applies baseline configuration; non-interactive execution logic
+- `Invoke-SRPRollout.ps1` - applies Software Restriction Policies; executed separately due to higher risk
+- `config.ini` - default configuration and feature toggles
+- `Modules/` - reusable PowerShell modules grouped by responsibility
 
 ## Modules
 
@@ -29,16 +30,7 @@ Please see below for a full list of changes being made to the system.
 
 ### 1. Run baseline provisioning
 
-```powershell
-$adminPass = Read-Host "Admin password" -AsSecureString
-$userPass  = Read-Host "Standard user password" -AsSecureString
-
-.\Invoke-BaselineProvisioning.ps1 \
-  -LocalAdminUser "LocalAdmin" \
-  -LocalAdminPassword $adminPass \
-  -StandardUser "Operator" \
-  -StandardUserPassword $userPass
-```
+Run `Start-Provisioning.cmd` as Administrator
 
 ### 2. Enable optional features through config.ini
 
