@@ -1,0 +1,3 @@
+- Додати режим AuditOnly, який лише перевіряє і логує відхилення
+- Додати окремий verification script після provisioning
+- Додати transcript/log rotation
