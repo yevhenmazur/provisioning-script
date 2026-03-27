@@ -1,5 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
+Import-Module (Join-Path $PSScriptRoot 'Modules\Secrets.psm1') -Force
+
 function Test-IsAdministrator {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = [Security.Principal.WindowsPrincipal]::new($identity)
@@ -26,37 +28,20 @@ function Read-ConfirmedPassword {
         $p1 = Read-Host $Prompt -AsSecureString
         $p2 = Read-Host "Confirm $Prompt" -AsSecureString
 
-        $bstr1 = [IntPtr]::Zero
-        $bstr2 = [IntPtr]::Zero
+        $s1 = ConvertTo-PlainText -SecureString $p1
+        $s2 = ConvertTo-PlainText -SecureString $p2
 
-        try {
-            $bstr1 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($p1)
-            $bstr2 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($p2)
-
-            $s1 = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr1)
-            $s2 = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr2)
-
-            if ($s1 -ne $s2) {
-                Write-Host "Passwords do not match. Try again." -ForegroundColor Yellow
-                continue
-            }
-
-            if ([string]::IsNullOrWhiteSpace($s1)) {
-                Write-Host "Password cannot be empty." -ForegroundColor Yellow
-                continue
-            }
-
-            return $p1
+        if ($s1 -ne $s2) {
+            Write-Host "Passwords do not match. Try again." -ForegroundColor Yellow
+            continue
         }
-        finally {
-            if ($bstr1 -ne [IntPtr]::Zero) {
-                [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr1)
-            }
 
-            if ($bstr2 -ne [IntPtr]::Zero) {
-                [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr2)
-            }
+        if ([string]::IsNullOrWhiteSpace($s1)) {
+            Write-Host "Password cannot be empty." -ForegroundColor Yellow
+            continue
         }
+
+        return $p1
     }
 }
 
@@ -89,13 +74,15 @@ try {
         throw "Operator user name must be different from the current local admin account."
     }
 
-    $standardUserPassword = Read-ConfirmedPassword -Prompt "Operator password"
+    $standardUserPasswordPlain = New-RandomPassword -Length 16
+    $standardUserPassword = ConvertTo-SecureStringSafe -PlainText $standardUserPasswordPlain
 
     Write-Host ""
     Write-Host "=== Summary ==="
-    Write-Host "Current admin  : $currentAdminUser"
-    Write-Host "Operator user  : $standardUserName"
-    Write-Host "Config path    : $configPath"
+    Write-Host "Current admin              : $currentAdminUser"
+    Write-Host "Operator user              : $standardUserName"
+    Write-Host "Generated operator password: $standardUserPasswordPlain"
+    Write-Host "Config path                : $configPath"
     Write-Host ""
 
     $confirm = (Read-Host "Proceed with provisioning? (Y/N)").Trim()
@@ -112,6 +99,10 @@ try {
     }
 
     & (Join-Path $PSScriptRoot 'Invoke-BaselineProvisioning.ps1') @params
+
+    Write-Host ""
+    Write-Host "Provisioning completed." -ForegroundColor Green
+    Write-Host "Operator password: $standardUserPasswordPlain" -ForegroundColor Yellow
 
     exit 0
 }

@@ -17,8 +17,16 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+if (-not (Test-Path $ConfigPath)) {
+    throw "Configuration file not found: $ConfigPath"
+}
+
 Import-Module "$PSScriptRoot\Modules\Config.psm1" -Force
 $config = Import-IniFile -Path $ConfigPath
+
+if (-not ($config.Keys -contains 'General') -or -not ($config['General'].Keys -contains 'LogPath')) {
+    throw "Missing required config value: [General] LogPath"
+}
 
 Import-Module "$PSScriptRoot\Modules\Common.psm1" -Force
 Import-Module "$PSScriptRoot\Modules\Users.psm1" -Force

@@ -11,7 +11,7 @@ Please see below for a full list of changes being made to the system.
 - `Invoke-BaselineProvisioning.ps1` - applies baseline configuration; non-interactive execution logic
 - `Invoke-SRPRollout.ps1` - applies Software Restriction Policies; executed separately due to higher risk
 - `config.ini` - default configuration and feature toggles
-- `Modules/` - reusable PowerShell modules grouped by responsibility
+- `Modules/` - reusable PowerShell modules grouped by responsibility, such as users, configuration, logging, and password generation
 
 ## Modules
 
@@ -25,6 +25,7 @@ Please see below for a full list of changes being made to the system.
 - `Office.psm1` - Office policy baseline
 - `ScriptHandling.psm1` - PowerShell execution policy and `.ps1` association
 - `SRP.psm1` - SRP configuration only
+- `Secrets.psm1` - secret handling
 
 ## Usage
 
