@@ -64,8 +64,8 @@ SRP is the setting most likely to break workstation usability. It should not sha
 
 ## Full list of changes
 
-- Create local admin (separate account, not daily use)
-- Create standard user (primary work account)
+- Setup password for local admin user (not daily use)
+- Create standard user (primary work account), setup strong temrary password
 - Disable built-in Administrator account
 - Add standard user ONLY to "Users" group
 
@@ -102,13 +102,13 @@ SRP is the setting most likely to break workstation usability. It should not sha
 - Disable PowerShell v2
 - Disable Autorun/Autoplay
 
-- Set Software Restriction Policies default security level to Disallowed
+<!-- - Set Software Restriction Policies default security level to Disallowed
 - Allow execution from C:\Windows\*
 - Allow execution from C:\Program Files\*
 - Allow execution from C:\Program Files (x86)\*
 - Block execution from %USERPROFILE%\Downloads\*
 - Block execution from %USERPROFILE%\Desktop\*
-- Block execution from %TEMP%\*
+- Block execution from %TEMP%\* -->
 
 - Disable all Office macros except digitally signed
 
