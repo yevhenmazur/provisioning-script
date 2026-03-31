@@ -3,3 +3,4 @@
 - Додати transcript/log rotation
 - Перевірити Bitlocker на справжньому залізі
 - Відлагодити SRP
+- запизати його в vaultwarden

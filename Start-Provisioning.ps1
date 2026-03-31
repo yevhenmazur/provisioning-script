@@ -18,33 +18,6 @@ function Get-CurrentLocalUserName {
     return $identityName.Split('\')[-1]
 }
 
-function Read-ConfirmedPassword {
-    param(
-        [Parameter(Mandatory)]
-        [string]$Prompt
-    )
-
-    while ($true) {
-        $p1 = Read-Host $Prompt -AsSecureString
-        $p2 = Read-Host "Confirm $Prompt" -AsSecureString
-
-        $s1 = ConvertTo-PlainText -SecureString $p1
-        $s2 = ConvertTo-PlainText -SecureString $p2
-
-        if ($s1 -ne $s2) {
-            Write-Host "Passwords do not match. Try again." -ForegroundColor Yellow
-            continue
-        }
-
-        if ([string]::IsNullOrWhiteSpace($s1)) {
-            Write-Host "Password cannot be empty." -ForegroundColor Yellow
-            continue
-        }
-
-        return $p1
-    }
-}
-
 try {
     if (-not (Test-IsAdministrator)) {
         throw "Start-Provisioning.ps1 must be run as Administrator."
@@ -62,9 +35,9 @@ try {
     Write-Host "Detected current local admin: $currentAdminUser"
     Write-Host ""
 
-    $currentAdminPassword = Read-ConfirmedPassword -Prompt "New password for current local admin"
-
-    $standardUserName = (Read-Host "Operator user name").Trim()
+    $currentAdminPasswordPlain = New-RandomPassword -Length 16
+    $currentAdminPassword = ConvertTo-SecureStringSafe -PlainText $currentAdminPasswordPlain
+    $standardUserName = (Read-Host "Set name for operator account").Trim()
 
     if ([string]::IsNullOrWhiteSpace($standardUserName)) {
         throw "Operator user name cannot be empty."
@@ -80,6 +53,7 @@ try {
     Write-Host ""
     Write-Host "=== Summary ==="
     Write-Host "Current admin              : $currentAdminUser"
+    Write-Host "Generated admin password   : $currentAdminPasswordPlain"
     Write-Host "Operator user              : $standardUserName"
     Write-Host "Generated operator password: $standardUserPasswordPlain"
     Write-Host "Config path                : $configPath"
@@ -101,7 +75,9 @@ try {
     & (Join-Path $PSScriptRoot 'Invoke-BaselineProvisioning.ps1') @params
 
     Write-Host ""
-    Write-Host "Provisioning completed." -ForegroundColor Green
+    Write-Host "Provisioning successfully completed." -ForegroundColor Green
+    Write-Host "Please save the passwords in a secure storage. They are not stored in logs!" -ForegroundColor Yellow
+    Write-Host "Admin password   : $currentAdminPasswordPlain" -ForegroundColor Yellow
     Write-Host "Operator password: $standardUserPasswordPlain" -ForegroundColor Yellow
 
     exit 0

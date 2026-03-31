@@ -37,7 +37,9 @@ Import-Module "$PSScriptRoot\Modules\BitLocker.psm1" -Force
 Import-Module "$PSScriptRoot\Modules\Office.psm1" -Force
 Import-Module "$PSScriptRoot\Modules\ScriptHandling.psm1" -Force
 
-Initialize-Logging -Path $config['General']['LogPath']
+$logPath = Join-Path $PSScriptRoot 'baseline.log'
+Initialize-Logging -Path $logPath
+
 Assert-Administrator
 
 Invoke-Step -Name 'Password policy'         -Action { Set-BaselinePasswordPolicy -Config $config }
