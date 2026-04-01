@@ -24,8 +24,16 @@ if (-not (Test-Path $ConfigPath)) {
 Import-Module "$PSScriptRoot\Modules\Config.psm1" -Force
 $config = Import-IniFile -Path $ConfigPath
 
-if (-not ($config.Keys -contains 'General') -or -not ($config['General'].Keys -contains 'LogPath')) {
-    throw "Missing required config value: [General] LogPath"
+if ($config.Keys -contains 'General' -and $config['General'].Keys -contains 'LogPath') {
+    $logPath = $config['General']['LogPath']
+}
+else {
+    $logPath = Join-Path $PSScriptRoot 'baseline.log'
+}
+
+$logDir = Split-Path $logPath -Parent
+if (-not (Test-Path $logDir)) {
+    New-Item -ItemType Directory -Path $logDir -Force | Out-Null
 }
 
 Import-Module "$PSScriptRoot\Modules\Common.psm1" -Force
@@ -37,7 +45,6 @@ Import-Module "$PSScriptRoot\Modules\BitLocker.psm1" -Force
 Import-Module "$PSScriptRoot\Modules\Office.psm1" -Force
 Import-Module "$PSScriptRoot\Modules\ScriptHandling.psm1" -Force
 
-$logPath = Join-Path $PSScriptRoot 'baseline.log'
 Initialize-Logging -Path $logPath
 
 Assert-Administrator
