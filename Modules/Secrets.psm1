@@ -30,14 +30,51 @@ function ConvertTo-SecureStringSafe {
     return ConvertTo-SecureString -String $PlainText -AsPlainText -Force
 }
 
+function New-OperatorPassphrase {
+    [CmdletBinding()]
+    param()
+
+    $adjectives = @(
+        'Fast','Slow','Blue','Red','Green','Dark','Light','Cold','Warm','Hot',
+        'Dry','Wet','Soft','Hard','Sharp','Smooth','Rough','Clean','Clear','Deep',
+        'High','Low','Wide','Narrow','Quick','Calm','Bold','Brave','Smart','Wise',
+        'Fresh','Bright','Plain','Sweet','Cool','Safe','Firm','Solid','Rapid','Quiet',
+        'Loud','Short','Long','Thin','Thick','Flat','Round','True','Prime','Ready',
+        'Steep','Mild','Loose','Tight','Clear','Grand','Basic','Neat','Fine','Exact'
+    )
+
+    $nouns = @(
+        'River','Stone','Cloud','Field','Forest','Hill','Lake','Wind','Rain','Snow',
+        'Storm','Sky','Flame','Light','Shadow','Wave','Sound','Noise','Signal','Line',
+        'Point','Edge','Core','Frame','Bridge','Road','Track','Path','Gate','Door',
+        'Wall','Floor','Roof','Block','Chain','Link','Node','Port','Cable','Wire',
+        'Disk','File','Code','Stack','Queue','Loop','Clock','Scope','Shift','Drive',
+        'Gear','Motor','Valve','Pump','Tank','Panel','Screen','Board','Chip','Unit'
+    )
+
+    $rng = [System.Random]::new()
+
+    $adj  = $adjectives[$rng.Next(0, $adjectives.Count)]
+    $noun = $nouns[$rng.Next(0, $nouns.Count)]
+    $num  = $rng.Next(10, 100)
+
+    $formats = @(
+        "$num-$adj-$noun!",
+        "$adj-$noun-$num!"
+    )
+
+    return $formats[$rng.Next(0, $formats.Count)]
+}
+
 function New-RandomPassword {
     [CmdletBinding()]
     param(
-        [int]$Length = 16
+        [int]$Length = 10,
+        [int]$MinLength = 8
     )
 
-    if ($Length -lt 12) {
-        throw "Password length must be at least 12."
+    if ($Length -lt $MinLength) {
+        throw "Password length must be at least $MinLenght."
     }
 
     $lower   = 'abcdefghijkmnopqrstuvwxyz'
@@ -93,4 +130,4 @@ function New-RandomPassword {
     }
 }
 
-Export-ModuleMember -Function ConvertTo-PlainText, ConvertTo-SecureStringSafe, New-RandomPassword
+Export-ModuleMember -Function ConvertTo-PlainText, ConvertTo-SecureStringSafe, New-RandomPassword, New-OperatorPassphrase

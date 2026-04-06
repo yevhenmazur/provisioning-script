@@ -35,7 +35,7 @@ try {
     Write-Host "Detected current local admin: $currentAdminUser"
     Write-Host ""
 
-    $currentAdminPasswordPlain = New-RandomPassword -Length 16
+    $currentAdminPasswordPlain = New-RandomPassword -Length 10
     $currentAdminPassword = ConvertTo-SecureStringSafe -PlainText $currentAdminPasswordPlain
     $standardUserName = (Read-Host "Set name for operator account").Trim()
 
@@ -47,7 +47,7 @@ try {
         throw "Operator user name must be different from the current local admin account."
     }
 
-    $standardUserPasswordPlain = New-RandomPassword -Length 16
+    $standardUserPasswordPlain = New-OperatorPassphrase
     $standardUserPassword = ConvertTo-SecureStringSafe -PlainText $standardUserPasswordPlain
 
     Write-Host ""
