@@ -47,7 +47,7 @@ try {
         throw "Operator user name must be different from the current local admin account."
     }
 
-    $standardUserPasswordPlain = New-OperatorPassphrase
+    $standardUserPasswordPlain = New-OperatorPassword
     $standardUserPassword = ConvertTo-SecureStringSafe -PlainText $standardUserPasswordPlain
 
     Write-Host ""

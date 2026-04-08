@@ -30,41 +30,45 @@ function ConvertTo-SecureStringSafe {
     return ConvertTo-SecureString -String $PlainText -AsPlainText -Force
 }
 
-function New-OperatorPassphrase {
+function New-OperatorPassword {
     [CmdletBinding()]
     param()
 
-    $adjectives = @(
-        'Fast','Slow','Blue','Red','Green','Dark','Light','Cold','Warm','Hot',
-        'Dry','Wet','Soft','Hard','Sharp','Smooth','Rough','Clean','Clear','Deep',
-        'High','Low','Wide','Narrow','Quick','Calm','Bold','Brave','Smart','Wise',
-        'Fresh','Bright','Plain','Sweet','Cool','Safe','Firm','Solid','Rapid','Quiet',
-        'Loud','Short','Long','Thin','Thick','Flat','Round','True','Prime','Ready',
-        'Steep','Mild','Loose','Tight','Clear','Grand','Basic','Neat','Fine','Exact'
-    )
+    $letters = 'abcdefghjkmnpqrstuvwxyz'  # без l, o
+    $digits  = '23456789'                 # без 0, 1
 
-    $nouns = @(
-        'River','Stone','Cloud','Field','Forest','Hill','Lake','Wind','Rain','Snow',
-        'Storm','Sky','Flame','Light','Shadow','Wave','Sound','Noise','Signal','Line',
-        'Point','Edge','Core','Frame','Bridge','Road','Track','Path','Gate','Door',
-        'Wall','Floor','Roof','Block','Chain','Link','Node','Port','Cable','Wire',
-        'Disk','File','Code','Stack','Queue','Loop','Clock','Scope','Shift','Drive',
-        'Gear','Motor','Valve','Pump','Tank','Panel','Screen','Board','Chip','Unit'
-    )
+    $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
 
-    $rng = [System.Random]::new()
+    try {
+        function Get-RandomChar {
+            param(
+                [Parameter(Mandatory)][char[]]$Chars,
+                [Parameter(Mandatory)][System.Security.Cryptography.RandomNumberGenerator]$Rng
+            )
 
-    $adj  = $adjectives[$rng.Next(0, $adjectives.Count)]
-    $noun = $nouns[$rng.Next(0, $nouns.Count)]
-    $num  = $rng.Next(10, 100)
+            $bytes = New-Object byte[] 4
+            $Rng.GetBytes($bytes)
+            $index = [BitConverter]::ToUInt32($bytes, 0) % $Chars.Length
+            return $Chars[$index]
+        }
 
-    $formats = @(
-        "$num-$adj-$noun!",
-        "$adj-$noun-$num!"
-    )
+        $result = @()
 
-    return $formats[$rng.Next(0, $formats.Count)]
+        for ($i = 0; $i -lt 4; $i++) {
+            $result += Get-RandomChar -Chars $letters.ToCharArray() -Rng $rng
+        }
+
+        for ($i = 0; $i -lt 2; $i++) {
+            $result += Get-RandomChar -Chars $digits.ToCharArray() -Rng $rng
+        }
+
+        return -join $result
+    }
+    finally {
+        $rng.Dispose()
+    }
 }
+
 
 function New-RandomPassword {
     [CmdletBinding()]
@@ -130,4 +134,4 @@ function New-RandomPassword {
     }
 }
 
-Export-ModuleMember -Function ConvertTo-PlainText, ConvertTo-SecureStringSafe, New-RandomPassword, New-OperatorPassphrase
+Export-ModuleMember -Function ConvertTo-PlainText, ConvertTo-SecureStringSafe, New-RandomPassword, New-OperatorPassword
